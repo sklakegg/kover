@@ -3,12 +3,13 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/factories/paginated_epub_widget_factory.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_probe.dart';
-import 'package:kover/utils/html_constants.dart';
+import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
 
 /// A [WidgetFactory] used for measuring the epub content.
 /// Wraps blocks, text and images in probes that report their size and position.
 class MeasuringPaginatedEpubWidgetFactory({
   super.viewport,
+  super.removeParagraphIndent,
   final void Function()? onBuildComplete,
   final void Function()? onImageSettled,
 }) extends PaginatedEpubWidgetFactory {
@@ -127,7 +128,7 @@ class MeasuringPaginatedEpubWidgetFactory({
 
   static int? _nodeIndex(dom.Element element) {
     final indexAttr =
-        element.attributes[HtmlConstants.nodeIndexAttribute] ?? '';
+        element.attributes[EpubHtmlConstants.nodeIndexAttribute] ?? '';
     return int.tryParse(indexAttr);
   }
 }

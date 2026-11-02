@@ -5,11 +5,12 @@ import 'package:csslib/visitor.dart' as css;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:html/dom.dart' as dom;
-import 'package:kover/utils/html_constants.dart';
+import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
 
 /// A [WidgetFactory] that adjusts rendering for paginated EPUB content.
 class PaginatedEpubWidgetFactory({
   final Size viewport = const Size(double.infinity, double.infinity),
+  final bool removeParagraphIndent = false,
 }) extends WidgetFactory {
   late final BuildOp _textIndentOp = BuildOp(
     alwaysRenderBlock: false,
@@ -28,15 +29,16 @@ class PaginatedEpubWidgetFactory({
   }
 
   void _applyTextIndent(BuildTree tree) {
+    if (removeParagraphIndent) return;
     if (tree.isInline != false) return;
     if (tree.children.any((child) => child.isInline == false)) return;
     if (tree.element.attributes.containsKey(
-      HtmlConstants.splitParagraphAttribute,
+      EpubHtmlConstants.splitParagraphAttribute,
     )) {
       return;
     }
     if (tree.element.attributes.containsKey(
-      HtmlConstants.textIndentAttribute,
+      EpubHtmlConstants.textIndentAttribute,
     )) {
       return;
     }
@@ -45,7 +47,7 @@ class PaginatedEpubWidgetFactory({
     if (indent == null || !indent.isPositive) return;
     if (_isCenterAligned(tree)) return;
 
-    tree.element.attributes[HtmlConstants.textIndentAttribute] = '';
+    tree.element.attributes[EpubHtmlConstants.textIndentAttribute] = '';
     tree.prepend(
       WidgetBit.inline(
         tree,
@@ -134,7 +136,7 @@ class PaginatedEpubWidgetFactory({
     );
 
     if (element.attributes.containsKey(
-      HtmlConstants.splitStartAttribute,
+      EpubHtmlConstants.splitStartAttribute,
     )) {
       styles['margin-top'] = '0';
       element.attributes['style'] = _appendStyle(
@@ -143,7 +145,7 @@ class PaginatedEpubWidgetFactory({
       );
     }
 
-    if (element.attributes.containsKey(HtmlConstants.splitEndAttribute)) {
+    if (element.attributes.containsKey(EpubHtmlConstants.splitEndAttribute)) {
       styles['margin-bottom'] = '0';
       element.attributes['style'] = _appendStyle(
         element.attributes['style'],

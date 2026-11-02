@@ -1,7 +1,6 @@
 import 'package:html/dom.dart';
-import 'package:kover/utils/extensions/string.dart';
 
-extension ScrollIdExtension on Element {
+extension XPathExtension on Element {
   /// Computes the XPath of this element relative to the root of the document.
   String xpath({bool pureXPath = false}) {
     var xpath = _getXPath(this, pureXPath: pureXPath);
@@ -32,10 +31,10 @@ extension ScrollIdExtension on Element {
     }
 
     // Count same-tag siblings
-    int siblingIndex = 1;
+    var siblingIndex = 1;
     final tagName = element.localName;
 
-    for (var sibling in parent.children) {
+    for (final sibling in parent.children) {
       if (sibling == element) {
         break;
       }
@@ -49,4 +48,29 @@ extension ScrollIdExtension on Element {
 
     return parentPath.isNotEmpty ? '$parentPath/$currentPath' : currentPath;
   }
+}
+
+extension CssEscapeExtension on String {
+  String get cssEscaped => replaceAll('"', "'");
+}
+
+extension NodeExtensions on Node {
+  bool get hasVisibleNodes {
+    return isTextOrImage || nodes.any((node) => node.hasVisibleNodes);
+  }
+
+  bool get hasText {
+    return (this is Text && text != null && text!.trim().isNotEmpty) ||
+        (this is Element && nodes.any((node) => node.hasText));
+  }
+
+  bool get isTextOrImage {
+    return (this is Text && text != null && text!.trim().isNotEmpty) ||
+        (this is Element &&
+            _imageTags.contains(
+              (this as Element).localName,
+            ));
+  }
+
+  static const _imageTags = {'img', 'svg'};
 }

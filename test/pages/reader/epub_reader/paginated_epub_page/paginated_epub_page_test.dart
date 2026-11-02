@@ -8,7 +8,7 @@ import 'package:kover/pages/reader/epub_reader/paginated_epub_page/paginated_epu
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_measurements_collector.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/epub_page_preprocessor.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/node_indexing_operation.dart';
-import 'package:kover/utils/html_constants.dart';
+import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
 
 void main() {
   group('EpubPaginator', () {
@@ -119,14 +119,14 @@ void main() {
         first
             .querySelector('p')!
             .attributes
-            .containsKey(HtmlConstants.splitParagraphAttribute),
+            .containsKey(EpubHtmlConstants.splitParagraphAttribute),
         isFalse,
       );
       expect(
         second
             .querySelector('p')!
             .attributes
-            .containsKey(HtmlConstants.splitParagraphAttribute),
+            .containsKey(EpubHtmlConstants.splitParagraphAttribute),
         isTrue,
       );
     });
@@ -262,7 +262,7 @@ void main() {
             .querySelector('p')!
             .attributes
             .containsKey(
-              HtmlConstants.splitParagraphAttribute,
+              EpubHtmlConstants.splitParagraphAttribute,
             ),
         isFalse,
       );
@@ -367,7 +367,7 @@ void main() {
             ),
           ],
         ),
-        pageHeight: 25,
+        viewport: const Size(100, 25),
       );
 
       expect(controller.status, PaginatedEpubPageControllerStatus.ready);
@@ -385,7 +385,7 @@ void main() {
     test('does not re-notify when jumping to the current subpage', () {
       final changes = <int>[];
       final controller = PaginatedEpubPageController(
-        onSubpageChanged: changes.add,
+        onSubpageChanged: (subpage, _) => changes.add(subpage),
       );
       final paginator = _paginator('<div><p>AAAA BBBB CCCC</p></div>');
       final block = _nodeIndexOf(paginator.root, 'p');
@@ -412,8 +412,9 @@ void main() {
             ),
           ],
         ),
-        pageHeight: 25,
+        viewport: const Size(100, 25),
       );
+      changes.clear();
 
       var notifications = 0;
       controller.addListener(() => notifications++);
@@ -447,7 +448,7 @@ void main() {
       var notifications = 0;
       controller.addListener(() => notifications++);
 
-      controller.viewportChanged();
+      controller.viewportChanged(const Size(100, 10));
 
       expect(notifications, 0);
       expect(controller.status, PaginatedEpubPageControllerStatus.measuring);
@@ -457,20 +458,103 @@ void main() {
           contentSize: const Size(100, 10),
           units: [_line(nodeIndex: block, bottom: 10)],
         ),
-        pageHeight: 100,
+        viewport: const Size(100, 100),
       );
 
       expect(notifications, 1);
       expect(controller.status, PaginatedEpubPageControllerStatus.ready);
 
-      controller.viewportChanged();
+      controller.viewportChanged(const Size(100, 120));
 
       expect(notifications, 2);
       expect(controller.status, PaginatedEpubPageControllerStatus.measuring);
 
-      controller.viewportChanged();
+      controller.viewportChanged(const Size(100, 120));
 
       expect(notifications, 2);
+    });
+
+    test('applies a pending subpage after pagination', () {
+      final controller = PaginatedEpubPageController();
+      final paginator = _paginator(
+        '<div><p>First</p><p>Second</p></div>',
+      );
+      final blocks = [
+        for (final paragraph in paginator.root.querySelectorAll('p'))
+          _nodeIndex(paragraph),
+      ];
+
+      controller.attachRoot(paginator.root);
+      controller.setPendingSubpage(1);
+      controller.processMeasurements(
+        EpubMeasurements(
+          contentSize: const Size(100, 20),
+          units: [
+            _line(nodeIndex: blocks[0], bottom: 10),
+            _line(nodeIndex: blocks[1], top: 10, bottom: 20),
+          ],
+        ),
+        viewport: const Size(100, 10),
+      );
+
+      expect(controller.currentSubpage, 1);
+    });
+
+    test('resumes at the initial xpath and reports its scroll id', () {
+      final html = dom.DocumentFragment.html(
+        '<div><p>first</p><p>second</p><p>third</p></div>',
+      );
+      final probe = PaginatedEpubPageController()..attachRoot(html);
+      final paragraphs = probe.root!.querySelectorAll('p');
+      final secondScrollId =
+          paragraphs[1].attributes[EpubHtmlConstants.scrollIdAttribute]!;
+
+      final changes = <(int, String?)>[];
+      final controller = PaginatedEpubPageController(
+        onSubpageChanged: (subpage, scrollId) {
+          changes.add((subpage, scrollId));
+        },
+      );
+
+      controller.attachRoot(
+        html,
+        initialXpath: secondScrollId,
+        highlightedXpath: secondScrollId,
+        additionalStyles: {
+          '.${EpubHtmlConstants.resumeClass}': {'background-color': 'red'},
+        },
+      );
+
+      final blocks = [
+        for (final paragraph in controller.root!.querySelectorAll('p'))
+          _nodeIndex(paragraph),
+      ];
+
+      controller.processMeasurements(
+        EpubMeasurements(
+          contentSize: const Size(100, 30),
+          units: [
+            _line(nodeIndex: blocks[0], bottom: 10),
+            _line(nodeIndex: blocks[1], top: 10, bottom: 20),
+            _line(nodeIndex: blocks[2], top: 20, bottom: 30),
+          ],
+        ),
+        viewport: const Size(100, 10),
+      );
+
+      expect(controller.currentSubpage, 1);
+      expect(changes, [(1, secondScrollId)]);
+      expect(controller.scrollIdForSubpage(1), secondScrollId);
+      expect(
+        controller.root!.querySelector('.${EpubHtmlConstants.resumeClass}'),
+        isNotNull,
+      );
+      expect(
+        controller.cssEngine.stylesFor(
+          controller.root!.querySelectorAll('p')[1],
+        )?['background-color'],
+        'red',
+      );
     });
   });
 }
@@ -487,7 +571,7 @@ int _nodeIndexOf(dom.DocumentFragment root, String selector) =>
     _nodeIndex(root.querySelector(selector)!);
 
 int _nodeIndex(dom.Element element) =>
-    int.parse(element.attributes[HtmlConstants.nodeIndexAttribute]!);
+    int.parse(element.attributes[EpubHtmlConstants.nodeIndexAttribute]!);
 
 EpubBreakUnit _line({
   required int nodeIndex,

@@ -3,7 +3,7 @@ import 'package:html/dom.dart' as dom;
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/epub_page_preprocessor.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/epub_page_preprocessor_operation.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/node_indexing_operation.dart';
-import 'package:kover/utils/html_constants.dart';
+import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
 
 void main() {
   group('EpubPagePreprocessor', () {
@@ -67,7 +67,7 @@ void main() {
         expect(
           root
               .querySelector('span')!
-              .attributes[HtmlConstants.nodeIndexAttribute],
+              .attributes[EpubHtmlConstants.nodeIndexAttribute],
           '3',
         );
       });
@@ -122,7 +122,7 @@ void main() {
 List<String?> _nodeIndexes(dom.DocumentFragment root) {
   return [
     for (final element in root.querySelectorAll('*'))
-      element.attributes[HtmlConstants.nodeIndexAttribute],
+      element.attributes[EpubHtmlConstants.nodeIndexAttribute],
   ];
 }
 

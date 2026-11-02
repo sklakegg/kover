@@ -6,8 +6,10 @@ import 'package:kover/pages/reader/epub_reader/paginated_epub_page/css_engine.da
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/factories/measuring_paginated_epub_widget_factory.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/factories/paginated_epub_widget_factory.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_probe.dart';
+import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/epub_page_preprocessor.dart';
+import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/node_indexing_operation.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/render_html.dart';
-import 'package:kover/utils/html_constants.dart';
+import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
 import 'package:material_ui/material_ui.dart';
 
 const _image =
@@ -21,7 +23,7 @@ void main() {
   ) async {
     const viewport = Size(100, 80);
     final html =
-        '<img ${HtmlConstants.nodeIndexAttribute}="0" '
+        '<img ${EpubHtmlConstants.nodeIndexAttribute}="0" '
         'src="$_image" width="40" height="100">';
 
     final rendered = await _imageSize(
@@ -44,7 +46,8 @@ void main() {
     tester,
   ) async {
     const viewport = Size(100, 80);
-    final html = '<img ${HtmlConstants.nodeIndexAttribute}="0" src="$_image">';
+    final html =
+        '<img ${EpubHtmlConstants.nodeIndexAttribute}="0" src="$_image">';
 
     final rendered = await _imageSize(
       tester,
@@ -60,6 +63,81 @@ void main() {
     expect(rendered.height, greaterThan(0));
     expect(measured, rendered);
     expect(tester.getSize(find.byType(EpubLeafProbe)), rendered);
+  });
+
+  testWidgets('additional text-indent override suppresses the indent', (
+    tester,
+  ) async {
+    const viewport = Size(300, 600);
+    final root = EpubPagePreprocessor(
+      html: dom.DocumentFragment.html(
+        '<p style="margin: 0; font-size: 10px; text-indent: 2em">'
+        'Hello world</p>',
+      ),
+      operations: [NodeIndexingOperation()],
+    ).process();
+    final html = root.outerHtml;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: RenderHtml(
+            key: UniqueKey(),
+            html: html,
+            factoryBuilder: () =>
+                PaginatedEpubWidgetFactory(viewport: viewport),
+            cssEngine: CssEngine(
+              root: dom.DocumentFragment.html(html),
+              additionalStyles: {
+                '*': {'text-indent': '0'},
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final paragraph = tester.renderObject<RenderParagraph>(
+      find.byType(RichText),
+    );
+    expect(paragraph.text.toPlainText().codeUnitAt(0), isNot(0xFFFC));
+  });
+
+  testWidgets('remove paragraph indent suppresses the indent widget', (
+    tester,
+  ) async {
+    const viewport = Size(300, 600);
+    final root = EpubPagePreprocessor(
+      html: dom.DocumentFragment.html(
+        '<p style="margin: 0; font-size: 10px; text-indent: 2em">'
+        'Hello world</p>',
+      ),
+      operations: [NodeIndexingOperation()],
+    ).process();
+    final html = root.outerHtml;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: RenderHtml(
+            key: UniqueKey(),
+            html: html,
+            factoryBuilder: () => PaginatedEpubWidgetFactory(
+              viewport: viewport,
+              removeParagraphIndent: true,
+            ),
+            cssEngine: CssEngine(root: dom.DocumentFragment.html(html)),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final paragraph = tester.renderObject<RenderParagraph>(
+      find.byType(RichText),
+    );
+    expect(paragraph.text.toPlainText().codeUnitAt(0), isNot(0xFFFC));
   });
 
   testWidgets('positive text-indent shifts the first line', (tester) async {
@@ -92,7 +170,7 @@ void main() {
         '<p style="margin: 0; font-size: 10px; text-indent: 0">Zero</p>'
         '<p style="margin: 0; font-size: 10px; text-indent: 2em; '
         'text-align: center">Centered</p>'
-        '<p ${HtmlConstants.splitParagraphAttribute} '
+        '<p ${EpubHtmlConstants.splitParagraphAttribute} '
         'style="margin: 0; font-size: 10px; text-indent: 2em">Split</p>';
 
     await _pumpHtml(tester, html, viewport);
