@@ -20,9 +20,6 @@ class PaginatedEpubPageModel({
   required final Map<String, String> highlightStyles,
   required final PaginatedEpubPageSettings settings,
   required final String? resumeScrollId,
-  required final String? highlightedScrollId,
-  required final bool canScroll,
-  required final bool reduceAnimations,
 }) with _$PaginatedEpubPageModel;
 
 @riverpod
@@ -79,37 +76,22 @@ Future<PaginatedEpubPageModel> paginatedEpubPage(
     additionalStyles: content.styles,
     rootStyles: themeStyles.root,
     highlightStyles: themeStyles.highlight,
-    settings: paginatedEpubPageSettings(settings),
     resumeScrollId: scrollId,
-    highlightedScrollId: settings.highlightResumePoint ? scrollId : null,
-    canScroll: commonSettings.navigationGersturesEnabled,
-    reduceAnimations: reduceAnimations,
-  );
-}
-
-PaginatedEpubPageSettings paginatedEpubPageSettings(
-  EpubReaderSettingsState settings,
-) {
-  return PaginatedEpubPageSettings(
-    horizontalMarginSize: settings.horizontalMarginSize,
-    verticalMarginSize: settings.verticalMarginSize,
-    fontSize: settings.fontSize,
-    paragraphSpacing: settings.paragraphSpacing,
-    lineHeight: settings.lineHeight,
-    wordSpacing: settings.wordSpacing,
-    letterSpacing: settings.letterSpacing,
-    fontFamily: settings.fontFamily,
-    removeParagraphIndent: settings.removeParagraphIndent,
-    textAlignment: switch (settings.textAlignment) {
-      .left => .left,
-      .right => .right,
-      .center => .center,
-      .justify => .justify,
-    },
-    mode: switch (settings.mode) {
-      .horizontal => .horizontal,
-      .vertical => .vertical,
-      .spreads => .spreads,
-    },
+    settings: PaginatedEpubPageSettings(
+      horizontalMarginSize: settings.horizontalMarginSize,
+      verticalMarginSize: settings.verticalMarginSize,
+      fontSize: settings.fontSize,
+      paragraphSpacing: settings.paragraphSpacing,
+      lineHeight: settings.lineHeight,
+      wordSpacing: settings.wordSpacing,
+      letterSpacing: settings.letterSpacing,
+      fontFamily: settings.fontFamily,
+      removeParagraphIndent: settings.removeParagraphIndent,
+      highlightResumePoint: settings.highlightResumePoint,
+      canScroll: commonSettings.navigationGersturesEnabled,
+      reduceAnimations: reduceAnimations,
+      textAlignment: settings.textAlignment,
+      mode: settings.mode,
+    ),
   );
 }

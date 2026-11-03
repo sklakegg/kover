@@ -1,4 +1,5 @@
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/paginated_epub_page_settings.dart';
+import 'package:kover/riverpod/providers/settings/epub_reader_settings.dart';
 
 /// Merges stylesheet layers. Later layers override earlier declarations while
 /// preserving the selector order in which they first appeared.
@@ -38,7 +39,7 @@ Map<String, Map<String, String>> settingsStyles(
   };
 }
 
-extension on PaginatedEpubPageTextAlignment {
+extension on EpubTextAlignment {
   String get cssValue => switch (this) {
     .left => 'left',
     .right => 'right',

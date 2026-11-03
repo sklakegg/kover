@@ -15,6 +15,9 @@ void main() {
         letterSpacing: 0,
         fontFamily: 'Book Font',
         removeParagraphIndent: true,
+        highlightResumePoint: false,
+        canScroll: true,
+        reduceAnimations: false,
         textAlignment: .justify,
         mode: .horizontal,
       );
@@ -42,6 +45,9 @@ void main() {
         letterSpacing: 0,
         fontFamily: null,
         removeParagraphIndent: false,
+        highlightResumePoint: false,
+        canScroll: true,
+        reduceAnimations: false,
         textAlignment: .left,
         mode: .vertical,
       );

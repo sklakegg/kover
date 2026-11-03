@@ -21,6 +21,9 @@ const _settings = PaginatedEpubPageSettings(
   letterSpacing: 0,
   fontFamily: null,
   removeParagraphIndent: false,
+  highlightResumePoint: false,
+  canScroll: true,
+  reduceAnimations: false,
   textAlignment: .left,
   mode: .horizontal,
 );

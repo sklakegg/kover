@@ -9,15 +9,11 @@ import 'package:scrollview_observer/scrollview_observer.dart';
 class VerticalEpubPageView extends HookWidget {
   final PaginatedEpubPageController controller;
   final PaginatedEpubPageSettings settings;
-  final bool canScroll;
-  final bool reduceAnimations;
 
   const VerticalEpubPageView({
     super.key,
     required this.controller,
     required this.settings,
-    required this.canScroll,
-    required this.reduceAnimations,
   });
 
   @override
@@ -36,25 +32,33 @@ class VerticalEpubPageView extends HookWidget {
       return created;
     }, [scrollController]);
 
-    useEffect(() {
-      if (!scrollController.hasClients) return null;
+    useEffect(
+      () {
+        if (!scrollController.hasClients) return null;
 
-      if (observed.value == current) {
-        observed.value = null;
+        if (observed.value == current) {
+          observed.value = null;
+          return null;
+        }
+
+        if (settings.reduceAnimations) {
+          observerController.jumpTo(index: current);
+        } else {
+          observerController.animateTo(
+            index: current,
+            duration: PaginatedEpubPageConstants.pageSlideDuration,
+            curve: Curves.easeInOut,
+          );
+        }
         return null;
-      }
-
-      if (reduceAnimations) {
-        observerController.jumpTo(index: current);
-      } else {
-        observerController.animateTo(
-          index: current,
-          duration: PaginatedEpubPageConstants.pageSlideDuration,
-          curve: Curves.easeInOut,
-        );
-      }
-      return null;
-    }, [current, scrollController, observerController, reduceAnimations]);
+      },
+      [
+        current,
+        scrollController,
+        observerController,
+        settings.reduceAnimations,
+      ],
+    );
 
     return SliverViewObserver(
       controller: observerController,
@@ -79,7 +83,7 @@ class VerticalEpubPageView extends HookWidget {
       },
       child: CustomScrollView(
         controller: scrollController,
-        physics: canScroll
+        physics: settings.canScroll
             ? const AlwaysScrollableScrollPhysics(
                 parent: ClampingScrollPhysics(),
               )

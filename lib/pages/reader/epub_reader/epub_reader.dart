@@ -275,7 +275,9 @@ class _Page extends HookConsumerWidget {
     return Async(
       asyncValue: model,
       data: (data) => NotificationListener<ScrollNotification>(
-        onNotification: data.canScroll ? handleScrollNotification : null,
+        onNotification: data.settings.canScroll
+            ? handleScrollNotification
+            : null,
         child: PaginatedEpubPage(
           controller: controller,
           html: data.html,
@@ -284,9 +286,6 @@ class _Page extends HookConsumerWidget {
           rootStyles: data.rootStyles,
           highlightStyles: data.highlightStyles,
           resumeScrollId: data.resumeScrollId,
-          highlightedScrollId: data.highlightedScrollId,
-          canScroll: data.canScroll,
-          reduceAnimations: data.reduceAnimations,
           onSelectionChanged: onSelectionChanged,
         ),
       ),

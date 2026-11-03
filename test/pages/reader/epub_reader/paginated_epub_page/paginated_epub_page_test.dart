@@ -5,6 +5,7 @@ import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_paginato
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_break.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_break_unit.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/paginated_epub_page_controller_status.dart';
+import 'package:kover/pages/reader/epub_reader/paginated_epub_page/paginated_epub_page_settings.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_measurements_collector.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/epub_page_preprocessor.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/node_indexing_operation.dart';
@@ -338,7 +339,7 @@ void main() {
       final paginator = _paginator('<div><p>AAAA BBBB CCCC</p></div>');
       final block = _nodeIndexOf(paginator.root, 'p');
 
-      controller.attachRoot(paginator.root);
+      controller.attachRoot(paginator.root, settings: _pageSettings());
       controller.processMeasurements(
         EpubMeasurements(
           // The whole document is much taller than the viewport.
@@ -390,7 +391,7 @@ void main() {
       final paginator = _paginator('<div><p>AAAA BBBB CCCC</p></div>');
       final block = _nodeIndexOf(paginator.root, 'p');
 
-      controller.attachRoot(paginator.root);
+      controller.attachRoot(paginator.root, settings: _pageSettings());
       controller.processMeasurements(
         EpubMeasurements(
           contentSize: const Size(100, 1000),
@@ -443,7 +444,7 @@ void main() {
       final paginator = _paginator('<div><p>Only page</p></div>');
       final block = _nodeIndexOf(paginator.root, 'p');
 
-      controller.attachRoot(paginator.root);
+      controller.attachRoot(paginator.root, settings: _pageSettings());
 
       var notifications = 0;
       controller.addListener(() => notifications++);
@@ -484,7 +485,7 @@ void main() {
           _nodeIndex(paragraph),
       ];
 
-      controller.attachRoot(paginator.root);
+      controller.attachRoot(paginator.root, settings: _pageSettings());
       controller.setPendingSubpage(1);
       controller.processMeasurements(
         EpubMeasurements(
@@ -504,7 +505,8 @@ void main() {
       final html = dom.DocumentFragment.html(
         '<div><p>first</p><p>second</p><p>third</p></div>',
       );
-      final probe = PaginatedEpubPageController()..attachRoot(html);
+      final probe = PaginatedEpubPageController()
+        ..attachRoot(html, settings: _pageSettings());
       final paragraphs = probe.root!.querySelectorAll('p');
       final secondScrollId =
           paragraphs[1].attributes[HtmlConstants.scrollIdAttribute]!;
@@ -518,8 +520,8 @@ void main() {
 
       controller.attachRoot(
         html,
+        settings: _pageSettings(highlightResumePoint: true),
         initialXpath: secondScrollId,
-        highlightedXpath: secondScrollId,
         additionalStyles: {
           '.${HtmlConstants.resumeClass}': {'background-color': 'red'},
         },
@@ -556,7 +558,63 @@ void main() {
         'red',
       );
     });
+
+    test('updateSettings toggles the resume highlight class', () {
+      final html = dom.DocumentFragment.html('<div><p>first</p></div>');
+      final probe = PaginatedEpubPageController()
+        ..attachRoot(html, settings: _pageSettings());
+      final scrollId = probe.root!
+          .querySelector('p')!
+          .attributes[HtmlConstants.scrollIdAttribute]!;
+
+      final controller = PaginatedEpubPageController()
+        ..attachRoot(
+          html,
+          settings: _pageSettings(),
+          initialXpath: scrollId,
+        );
+
+      expect(
+        controller.root!.querySelector('.${HtmlConstants.resumeClass}'),
+        isNull,
+      );
+
+      controller.updateSettings(
+        _pageSettings(highlightResumePoint: true),
+      );
+      expect(
+        controller.root!.querySelectorAll('p').first.classes,
+        contains(HtmlConstants.resumeClass),
+      );
+
+      controller.updateSettings(_pageSettings());
+      expect(
+        controller.root!.querySelectorAll('p').first.classes,
+        isNot(contains(HtmlConstants.resumeClass)),
+      );
+    });
   });
+}
+
+PaginatedEpubPageSettings _pageSettings({
+  bool highlightResumePoint = false,
+}) {
+  return PaginatedEpubPageSettings(
+    horizontalMarginSize: 0,
+    verticalMarginSize: 0,
+    fontSize: 14,
+    paragraphSpacing: 0,
+    lineHeight: 1.5,
+    wordSpacing: 0,
+    letterSpacing: 0,
+    fontFamily: null,
+    removeParagraphIndent: false,
+    highlightResumePoint: highlightResumePoint,
+    canScroll: true,
+    reduceAnimations: false,
+    textAlignment: .left,
+    mode: .horizontal,
+  );
 }
 
 EpubPaginator _paginator(String html) {

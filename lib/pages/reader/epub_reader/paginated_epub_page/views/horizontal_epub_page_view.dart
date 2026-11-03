@@ -8,15 +8,11 @@ import 'package:material_ui/material_ui.dart';
 class HorizontalEpubPageView extends HookWidget {
   final PaginatedEpubPageController controller;
   final PaginatedEpubPageSettings settings;
-  final bool canScroll;
-  final bool reduceAnimations;
 
   const HorizontalEpubPageView({
     super.key,
     required this.controller,
     required this.settings,
-    required this.canScroll,
-    required this.reduceAnimations,
   });
 
   @override
@@ -31,7 +27,7 @@ class HorizontalEpubPageView extends HookWidget {
       if (!pageController.hasClients) return null;
       if (pageController.page?.round() == current) return null;
 
-      if (reduceAnimations) {
+      if (settings.reduceAnimations) {
         pageController.jumpToPage(current);
       } else {
         pageController.animateToPage(
@@ -41,14 +37,14 @@ class HorizontalEpubPageView extends HookWidget {
         );
       }
       return null;
-    }, [current, pageController, reduceAnimations]);
+    }, [current, pageController, settings.reduceAnimations]);
 
     return PageView.builder(
       controller: pageController,
       itemCount: controller.subpageCount,
       allowImplicitScrolling: true,
       scrollCacheExtent: const .viewport(4),
-      physics: canScroll && !reduceAnimations
+      physics: settings.canScroll && !settings.reduceAnimations
           ? const AlwaysScrollableScrollPhysics(
               parent: ClampingScrollPhysics(),
             )

@@ -1,13 +1,7 @@
 import 'package:equatable/equatable.dart';
-
-enum PaginatedEpubPageMode { horizontal, vertical, spreads }
-
-enum PaginatedEpubPageTextAlignment { left, right, justify, center }
+import 'package:kover/riverpod/providers/settings/epub_reader_settings.dart';
 
 /// Settings consumed by the paginated EPUB rendering pipeline.
-///
-/// This type is part of the standalone paginated EPUB subtree and must not
-/// depend on app-level settings providers.
 class const PaginatedEpubPageSettings({
   required final double horizontalMarginSize,
   required final double verticalMarginSize,
@@ -18,8 +12,11 @@ class const PaginatedEpubPageSettings({
   required final double letterSpacing,
   required final String? fontFamily,
   required final bool removeParagraphIndent,
-  required final PaginatedEpubPageTextAlignment textAlignment,
-  required final PaginatedEpubPageMode mode,
+  required final bool highlightResumePoint,
+  required final bool canScroll,
+  required final bool reduceAnimations,
+  required final EpubTextAlignment textAlignment,
+  required final EpubReaderMode mode,
 }) extends Equatable {
   @override
   List<Object?> get props => [
@@ -32,6 +29,9 @@ class const PaginatedEpubPageSettings({
     letterSpacing,
     fontFamily,
     removeParagraphIndent,
+    highlightResumePoint,
+    canScroll,
+    reduceAnimations,
     textAlignment,
     mode,
   ];

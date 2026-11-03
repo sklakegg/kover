@@ -18,9 +18,6 @@ class PaginatedEpubPage extends HookWidget {
   final Map<String, String> rootStyles;
   final Map<String, String> highlightStyles;
   final String? resumeScrollId;
-  final String? highlightedScrollId;
-  final bool canScroll;
-  final bool reduceAnimations;
   final void Function(bool selected)? onSelectionChanged;
 
   const new({
@@ -32,9 +29,6 @@ class PaginatedEpubPage extends HookWidget {
     this.rootStyles = const {},
     this.highlightStyles = const {},
     this.resumeScrollId,
-    this.highlightedScrollId,
-    this.canScroll = true,
-    this.reduceAnimations = false,
     this.onSelectionChanged,
   });
 
@@ -57,8 +51,8 @@ class PaginatedEpubPage extends HookWidget {
     useEffect(() {
       controller.attachRoot(
         html,
+        settings: settings,
         initialXpath: resumeScrollId,
-        highlightedXpath: highlightedScrollId,
         additionalStyles: mergedStyles,
       );
       return null;
@@ -70,9 +64,9 @@ class PaginatedEpubPage extends HookWidget {
     }, [controller, mergedStyles]);
 
     useEffect(() {
-      controller.updateHighlightedXpath(highlightedScrollId);
+      controller.updateSettings(settings);
       return null;
-    }, [controller, highlightedScrollId]);
+    }, [controller, settings]);
 
     final previousSettings = usePrevious(settings);
     useEffect(() {
@@ -122,20 +116,14 @@ class PaginatedEpubPage extends HookWidget {
                 .horizontal => HorizontalEpubPageView(
                   controller: controller,
                   settings: settings,
-                  canScroll: canScroll,
-                  reduceAnimations: reduceAnimations,
                 ),
                 .vertical => VerticalEpubPageView(
                   controller: controller,
                   settings: settings,
-                  canScroll: canScroll,
-                  reduceAnimations: reduceAnimations,
                 ),
                 .spreads => SpreadsEpubPageView(
                   controller: controller,
                   settings: settings,
-                  canScroll: canScroll,
-                  reduceAnimations: reduceAnimations,
                 ),
               },
             ),

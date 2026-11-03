@@ -1,12 +1,13 @@
 import 'package:html/dom.dart' as dom;
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/css_engine.dart';
-import 'package:kover/utils/html_constants.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_paginator.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_measurements_collector.dart';
+import 'package:kover/pages/reader/epub_reader/paginated_epub_page/paginated_epub_page_settings.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/epub_page_preprocessor.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/node_indexing_operation.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/resume_highlight_operation.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/scroll_id_operation.dart';
+import 'package:kover/utils/html_constants.dart';
 import 'package:material_ui/material_ui.dart';
 
 enum PaginatedEpubPageControllerStatus { measuring, ready }
@@ -22,17 +23,16 @@ class PaginatedEpubPageController({
   int _currentSubpage = 0;
   Size? _contentViewport;
   String? _initialXpath;
-  String? _highlightedXpath;
   dom.Element? _highlightedElement;
   bool _resumePending = false;
   int? _pendingSubpage;
+  PaginatedEpubPageSettings? _settings;
   Map<String, Map<String, String>> _additionalStyles = const {};
 
   PaginatedEpubPageControllerStatus get status => _status;
   dom.DocumentFragment? get root => _paginator?.root;
   Size? get contentViewport => _contentViewport;
   String? get initialXpath => _initialXpath;
-  String? get highlightedXpath => _highlightedXpath;
 
   int get currentSubpage => _currentSubpage;
   int get subpageCount => _paginator?.subpageCount ?? 0;
@@ -65,8 +65,8 @@ class PaginatedEpubPageController({
 
   void attachRoot(
     dom.DocumentFragment html, {
+    required PaginatedEpubPageSettings settings,
     String? initialXpath,
-    String? highlightedXpath,
     Map<String, Map<String, String>> additionalStyles = const {},
   }) {
     final root = EpubPagePreprocessor(
@@ -74,7 +74,9 @@ class PaginatedEpubPageController({
       operations: [
         NodeIndexingOperation(),
         ScrollIdOperation(),
-        ResumeHighlightOperation(scrollId: highlightedXpath),
+        ResumeHighlightOperation(
+          scrollId: settings.highlightResumePoint ? initialXpath : null,
+        ),
       ],
     ).process();
 
@@ -84,9 +86,11 @@ class PaginatedEpubPageController({
       additionalStyles: additionalStyles,
     );
     _additionalStyles = additionalStyles;
+    _settings = settings;
     _initialXpath = initialXpath;
-    _highlightedXpath = highlightedXpath;
-    _highlightedElement = _findByScrollId(root, highlightedXpath);
+    _highlightedElement = settings.highlightResumePoint
+        ? _findByScrollId(root, initialXpath)
+        : null;
     _resumePending = initialXpath != null;
     _currentSubpage = 0;
     _contentViewport = null;
@@ -100,15 +104,21 @@ class PaginatedEpubPageController({
     notifyListeners();
   }
 
-  void updateHighlightedXpath(String? scrollId) {
-    if (_highlightedXpath == scrollId) return;
+  void updateSettings(PaginatedEpubPageSettings settings) {
+    final wasHighlighting = _settings?.highlightResumePoint ?? false;
+    _settings = settings;
 
-    _highlightedElement?.classes.remove(HtmlConstants.resumeClass);
-    _highlightedXpath = scrollId;
+    if (wasHighlighting == settings.highlightResumePoint) return;
 
-    final root = _paginator?.root;
-    _highlightedElement = root == null ? null : _findByScrollId(root, scrollId);
-    _highlightedElement?.classes.add(HtmlConstants.resumeClass);
+    if (settings.highlightResumePoint) {
+      final root = _paginator?.root;
+      _highlightedElement ??= root == null
+          ? null
+          : _findByScrollId(root, _initialXpath);
+      _highlightedElement?.classes.add(HtmlConstants.resumeClass);
+    } else {
+      _highlightedElement?.classes.remove(HtmlConstants.resumeClass);
+    }
 
     _cssEngine?.updateAdditionalStyles(_additionalStyles);
     notifyListeners();

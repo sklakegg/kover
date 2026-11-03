@@ -3,12 +3,13 @@ import 'package:html/dom.dart' as dom;
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/paginated_epub_page.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/paginated_epub_page_controller_status.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/paginated_epub_page_settings.dart';
+import 'package:kover/riverpod/providers/settings/epub_reader_settings.dart';
 import 'package:material_ui/material_ui.dart';
 
 void main() {
   for (final mode in [
-    PaginatedEpubPageMode.vertical,
-    PaginatedEpubPageMode.spreads,
+    EpubReaderMode.vertical,
+    EpubReaderMode.spreads,
   ]) {
     testWidgets('renders ${mode.name} pages', (tester) async {
       const viewport = Size(320, 240);
@@ -71,7 +72,7 @@ const _html =
     'exercise pagination in every display mode.</p>'
     '</div>';
 
-PaginatedEpubPageSettings _settings(PaginatedEpubPageMode mode) {
+PaginatedEpubPageSettings _settings(EpubReaderMode mode) {
   return PaginatedEpubPageSettings(
     horizontalMarginSize: 0,
     verticalMarginSize: 0,
@@ -82,6 +83,9 @@ PaginatedEpubPageSettings _settings(PaginatedEpubPageMode mode) {
     letterSpacing: 0,
     fontFamily: null,
     removeParagraphIndent: false,
+    highlightResumePoint: false,
+    canScroll: true,
+    reduceAnimations: false,
     textAlignment: .left,
     mode: mode,
   );
