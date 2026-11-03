@@ -1,6 +1,6 @@
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:html/dom.dart' as dom;
-import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
+import 'package:kover/utils/html_constants.dart';
 
 /// A position inside the DOM that corresponds to a character of the flattened
 /// inline text.
@@ -80,7 +80,7 @@ class const EpubTextIndex._(final List<EpubTextPosition> _positions) {
           // leading placeholder maps to the block start.
           if (i == 0 &&
               block.attributes.containsKey(
-                EpubHtmlConstants.textIndentAttribute,
+                HtmlConstants.textIndentAttribute,
               )) {
             positions.add(EpubTextPosition(node: block, offset: 0));
             continue;

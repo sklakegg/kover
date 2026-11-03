@@ -1,6 +1,6 @@
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:html/dom.dart' as dom;
-import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
+import 'package:kover/utils/html_constants.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_measurements_collector.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/paginated_epub_page_controller_status.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/paginated_epub_page_settings.dart';
@@ -46,10 +46,10 @@ class PaginatedEpubPage extends HookWidget {
       () => mergeStyles([
         additionalStyles,
         if (rootStyles.isNotEmpty)
-          {'.${EpubHtmlConstants.koverWrapperClass}': rootStyles},
+          {'.${HtmlConstants.koverWrapperClass}': rootStyles},
         settingsStyles(settings),
         if (highlightStyles.isNotEmpty)
-          {'.${EpubHtmlConstants.resumeClass}': highlightStyles},
+          {'.${HtmlConstants.resumeClass}': highlightStyles},
       ]),
       [additionalStyles, rootStyles, highlightStyles, settings],
     );

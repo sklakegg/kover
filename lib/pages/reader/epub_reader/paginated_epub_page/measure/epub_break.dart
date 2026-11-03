@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
-import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
+import 'package:kover/utils/html_constants.dart';
 
 /// One page boundary. Points at a position inside the source tree.
 ///
-/// [blockNodeIndex] is the [EpubHtmlConstants.nodeIndexAttribute] element index.
+/// [blockNodeIndex] is the [HtmlConstants.nodeIndexAttribute] element index.
 /// [childPath] addresses the node under that element using `childNodes`
 /// indices. An empty [childPath] points at the start of the block itself.
 class const EpubBreak({

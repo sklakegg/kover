@@ -6,7 +6,7 @@ import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/node_indexing_operation.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_measurements_collector.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/paginated_epub_page_settings.dart';
-import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
+import 'package:kover/utils/html_constants.dart';
 import 'package:material_ui/material_ui.dart';
 
 const _settings = PaginatedEpubPageSettings(
@@ -44,7 +44,7 @@ void main() {
       final paragraphIndexes = {
         for (final paragraph in paragraphs)
           int.parse(
-            paragraph.attributes[EpubHtmlConstants.nodeIndexAttribute]!,
+            paragraph.attributes[HtmlConstants.nodeIndexAttribute]!,
           ),
       };
 
@@ -161,7 +161,7 @@ void main() {
       for (final selector in ['h2', 'p']) {
         final element = html.querySelector(selector)!;
         final nodeIndex = int.parse(
-          element.attributes[EpubHtmlConstants.nodeIndexAttribute]!,
+          element.attributes[HtmlConstants.nodeIndexAttribute]!,
         );
         final elementUnits = units.where((unit) => unit.nodeIndex == nodeIndex);
 
@@ -313,7 +313,7 @@ void main() {
       final imageIndex = int.parse(
         html
             .querySelector('img')!
-            .attributes[EpubHtmlConstants.nodeIndexAttribute]!,
+            .attributes[HtmlConstants.nodeIndexAttribute]!,
       );
 
       expect(leaves.any((unit) => unit.nodeIndex == imageIndex), isTrue);

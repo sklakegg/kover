@@ -9,7 +9,7 @@ import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/epub_page_preprocessor.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/node_indexing_operation.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/render_html.dart';
-import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
+import 'package:kover/utils/html_constants.dart';
 import 'package:material_ui/material_ui.dart';
 
 const _image =
@@ -23,7 +23,7 @@ void main() {
   ) async {
     const viewport = Size(100, 80);
     final html =
-        '<img ${EpubHtmlConstants.nodeIndexAttribute}="0" '
+        '<img ${HtmlConstants.nodeIndexAttribute}="0" '
         'src="$_image" width="40" height="100">';
 
     final rendered = await _imageSize(
@@ -46,8 +46,7 @@ void main() {
     tester,
   ) async {
     const viewport = Size(100, 80);
-    final html =
-        '<img ${EpubHtmlConstants.nodeIndexAttribute}="0" src="$_image">';
+    final html = '<img ${HtmlConstants.nodeIndexAttribute}="0" src="$_image">';
 
     final rendered = await _imageSize(
       tester,
@@ -170,7 +169,7 @@ void main() {
         '<p style="margin: 0; font-size: 10px; text-indent: 0">Zero</p>'
         '<p style="margin: 0; font-size: 10px; text-indent: 2em; '
         'text-align: center">Centered</p>'
-        '<p ${EpubHtmlConstants.splitParagraphAttribute} '
+        '<p ${HtmlConstants.splitParagraphAttribute} '
         'style="margin: 0; font-size: 10px; text-indent: 2em">Split</p>';
 
     await _pumpHtml(tester, html, viewport);

@@ -8,7 +8,7 @@ import 'package:kover/pages/reader/epub_reader/paginated_epub_page/paginated_epu
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_measurements_collector.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/epub_page_preprocessor.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/node_indexing_operation.dart';
-import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
+import 'package:kover/utils/html_constants.dart';
 
 void main() {
   group('EpubPaginator', () {
@@ -119,14 +119,14 @@ void main() {
         first
             .querySelector('p')!
             .attributes
-            .containsKey(EpubHtmlConstants.splitParagraphAttribute),
+            .containsKey(HtmlConstants.splitParagraphAttribute),
         isFalse,
       );
       expect(
         second
             .querySelector('p')!
             .attributes
-            .containsKey(EpubHtmlConstants.splitParagraphAttribute),
+            .containsKey(HtmlConstants.splitParagraphAttribute),
         isTrue,
       );
     });
@@ -262,7 +262,7 @@ void main() {
             .querySelector('p')!
             .attributes
             .containsKey(
-              EpubHtmlConstants.splitParagraphAttribute,
+              HtmlConstants.splitParagraphAttribute,
             ),
         isFalse,
       );
@@ -507,7 +507,7 @@ void main() {
       final probe = PaginatedEpubPageController()..attachRoot(html);
       final paragraphs = probe.root!.querySelectorAll('p');
       final secondScrollId =
-          paragraphs[1].attributes[EpubHtmlConstants.scrollIdAttribute]!;
+          paragraphs[1].attributes[HtmlConstants.scrollIdAttribute]!;
 
       final changes = <(int, String?)>[];
       final controller = PaginatedEpubPageController(
@@ -521,7 +521,7 @@ void main() {
         initialXpath: secondScrollId,
         highlightedXpath: secondScrollId,
         additionalStyles: {
-          '.${EpubHtmlConstants.resumeClass}': {'background-color': 'red'},
+          '.${HtmlConstants.resumeClass}': {'background-color': 'red'},
         },
       );
 
@@ -546,7 +546,7 @@ void main() {
       expect(changes, [(1, secondScrollId)]);
       expect(controller.scrollIdForSubpage(1), secondScrollId);
       expect(
-        controller.root!.querySelector('.${EpubHtmlConstants.resumeClass}'),
+        controller.root!.querySelector('.${HtmlConstants.resumeClass}'),
         isNotNull,
       );
       expect(
@@ -571,7 +571,7 @@ int _nodeIndexOf(dom.DocumentFragment root, String selector) =>
     _nodeIndex(root.querySelector(selector)!);
 
 int _nodeIndex(dom.Element element) =>
-    int.parse(element.attributes[EpubHtmlConstants.nodeIndexAttribute]!);
+    int.parse(element.attributes[HtmlConstants.nodeIndexAttribute]!);
 
 EpubBreakUnit _line({
   required int nodeIndex,

@@ -3,7 +3,7 @@ import 'dart:developer' as developer;
 import 'package:csslib/parser.dart' as css;
 import 'package:csslib/visitor.dart';
 import 'package:html/dom.dart' as dom;
-import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
+import 'package:kover/utils/html_constants.dart';
 
 /// Resolves the document stylesheet and an optional additional stylesheet to
 /// concrete declarations per element.
@@ -31,7 +31,7 @@ class CssEngine {
   int get stylesRevision => _revision;
 
   Map<String, String>? stylesFor(dom.Element element) {
-    final nodeIndex = element.attributes[EpubHtmlConstants.nodeIndexAttribute];
+    final nodeIndex = element.attributes[HtmlConstants.nodeIndexAttribute];
     if (nodeIndex == null) return null;
 
     final declarations = _additionalDeclarations[nodeIndex];
@@ -68,7 +68,7 @@ class CssEngine {
         final matches = _root.querySelectorAll(entry.key);
         for (final element in matches) {
           final nodeIndex =
-              element.attributes[EpubHtmlConstants.nodeIndexAttribute];
+              element.attributes[HtmlConstants.nodeIndexAttribute];
           if (nodeIndex == null) continue;
 
           final properties = result.putIfAbsent(nodeIndex, () => {});
@@ -133,7 +133,7 @@ class CssEngine {
         final matches = root.querySelectorAll(rule.selector);
         for (final element in matches) {
           final nodeIndex =
-              element.attributes[EpubHtmlConstants.nodeIndexAttribute];
+              element.attributes[HtmlConstants.nodeIndexAttribute];
           if (nodeIndex == null) continue;
           map.putIfAbsent(nodeIndex, () => []).add(rule);
         }

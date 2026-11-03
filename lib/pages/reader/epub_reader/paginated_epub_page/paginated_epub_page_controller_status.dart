@@ -1,6 +1,6 @@
 import 'package:html/dom.dart' as dom;
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/css_engine.dart';
-import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
+import 'package:kover/utils/html_constants.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_paginator.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_measurements_collector.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/preprocessing/epub_page_preprocessor.dart';
@@ -103,12 +103,12 @@ class PaginatedEpubPageController({
   void updateHighlightedXpath(String? scrollId) {
     if (_highlightedXpath == scrollId) return;
 
-    _highlightedElement?.classes.remove(EpubHtmlConstants.resumeClass);
+    _highlightedElement?.classes.remove(HtmlConstants.resumeClass);
     _highlightedXpath = scrollId;
 
     final root = _paginator?.root;
     _highlightedElement = root == null ? null : _findByScrollId(root, scrollId);
-    _highlightedElement?.classes.add(EpubHtmlConstants.resumeClass);
+    _highlightedElement?.classes.add(HtmlConstants.resumeClass);
 
     _cssEngine?.updateAdditionalStyles(_additionalStyles);
     notifyListeners();
@@ -188,7 +188,7 @@ class PaginatedEpubPageController({
       dom.Element? current = element;
       while (current != null) {
         final index = int.tryParse(
-          current.attributes[EpubHtmlConstants.nodeIndexAttribute] ?? '',
+          current.attributes[HtmlConstants.nodeIndexAttribute] ?? '',
         );
         if (index != null) {
           final subpage = paginator.subpageForNodeIndex(index);
@@ -210,10 +210,10 @@ class PaginatedEpubPageController({
     if (scrollId == null) return null;
 
     final elements = root.querySelectorAll(
-      '[${EpubHtmlConstants.scrollIdAttribute}]',
+      '[${HtmlConstants.scrollIdAttribute}]',
     );
     for (final element in elements) {
-      if (element.attributes[EpubHtmlConstants.scrollIdAttribute] == scrollId) {
+      if (element.attributes[HtmlConstants.scrollIdAttribute] == scrollId) {
         return element;
       }
     }

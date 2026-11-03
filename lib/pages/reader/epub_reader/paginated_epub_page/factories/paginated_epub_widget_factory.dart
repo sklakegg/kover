@@ -5,7 +5,7 @@ import 'package:csslib/visitor.dart' as css;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:html/dom.dart' as dom;
-import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
+import 'package:kover/utils/html_constants.dart';
 
 /// A [WidgetFactory] that adjusts rendering for paginated EPUB content.
 class PaginatedEpubWidgetFactory({
@@ -33,12 +33,12 @@ class PaginatedEpubWidgetFactory({
     if (tree.isInline != false) return;
     if (tree.children.any((child) => child.isInline == false)) return;
     if (tree.element.attributes.containsKey(
-      EpubHtmlConstants.splitParagraphAttribute,
+      HtmlConstants.splitParagraphAttribute,
     )) {
       return;
     }
     if (tree.element.attributes.containsKey(
-      EpubHtmlConstants.textIndentAttribute,
+      HtmlConstants.textIndentAttribute,
     )) {
       return;
     }
@@ -47,7 +47,7 @@ class PaginatedEpubWidgetFactory({
     if (indent == null || !indent.isPositive) return;
     if (_isCenterAligned(tree)) return;
 
-    tree.element.attributes[EpubHtmlConstants.textIndentAttribute] = '';
+    tree.element.attributes[HtmlConstants.textIndentAttribute] = '';
     tree.prepend(
       WidgetBit.inline(
         tree,
@@ -136,7 +136,7 @@ class PaginatedEpubWidgetFactory({
     );
 
     if (element.attributes.containsKey(
-      EpubHtmlConstants.splitStartAttribute,
+      HtmlConstants.splitStartAttribute,
     )) {
       styles['margin-top'] = '0';
       element.attributes['style'] = _appendStyle(
@@ -145,7 +145,7 @@ class PaginatedEpubWidgetFactory({
       );
     }
 
-    if (element.attributes.containsKey(EpubHtmlConstants.splitEndAttribute)) {
+    if (element.attributes.containsKey(HtmlConstants.splitEndAttribute)) {
       styles['margin-bottom'] = '0';
       element.attributes['style'] = _appendStyle(
         element.attributes['style'],

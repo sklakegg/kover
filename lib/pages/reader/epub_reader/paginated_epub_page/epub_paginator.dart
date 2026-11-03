@@ -1,8 +1,8 @@
 import 'dart:developer' as developer;
 
 import 'package:html/dom.dart' as dom;
-import 'package:kover/pages/reader/epub_reader/paginated_epub_page/epub_html_constants.dart';
-import 'package:kover/pages/reader/epub_reader/paginated_epub_page/extensions/dom.dart';
+import 'package:kover/utils/html_constants.dart';
+import 'package:kover/utils/extensions/document_fragment.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_break.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_break_unit.dart';
 
@@ -82,11 +82,10 @@ class EpubPaginator({required final dom.DocumentFragment root}) {
     for (var index = 0; index < subpageCount; index++) {
       final fragment = dom.DocumentFragment.html(getSubpage(index));
       final elements = fragment.querySelectorAll(
-        '[${EpubHtmlConstants.scrollIdAttribute}]',
+        '[${HtmlConstants.scrollIdAttribute}]',
       );
       for (final element in elements) {
-        if (element.attributes[EpubHtmlConstants.scrollIdAttribute] ==
-            scrollId) {
+        if (element.attributes[HtmlConstants.scrollIdAttribute] == scrollId) {
           return index;
         }
       }
@@ -104,7 +103,7 @@ class EpubPaginator({required final dom.DocumentFragment root}) {
     String? scrollId;
     for (final paragraph in fragment.querySelectorAll('p')) {
       if (!paragraph.hasText) continue;
-      scrollId = paragraph.attributes[EpubHtmlConstants.scrollIdAttribute];
+      scrollId = paragraph.attributes[HtmlConstants.scrollIdAttribute];
       break;
     }
 
@@ -162,14 +161,14 @@ class EpubPaginator({required final dom.DocumentFragment root}) {
     if (start != null) {
       final startBlock = _blockAt(subpage, start.blockNodeIndex);
       if (startBlock != null) {
-        _markPath(startBlock, EpubHtmlConstants.splitStartAttribute);
+        _markPath(startBlock, HtmlConstants.splitStartAttribute);
       }
     }
 
     if (end != null) {
       final endBlock = _blockAt(subpage, end.blockNodeIndex);
       if (endBlock != null) {
-        _markPath(endBlock, EpubHtmlConstants.splitEndAttribute);
+        _markPath(endBlock, HtmlConstants.splitEndAttribute);
       }
     }
 
@@ -185,7 +184,7 @@ class EpubPaginator({required final dom.DocumentFragment root}) {
       _blockAt(
         subpage,
         start!.blockNodeIndex,
-      )?.attributes[EpubHtmlConstants.splitParagraphAttribute] = '';
+      )?.attributes[HtmlConstants.splitParagraphAttribute] = '';
     }
 
     // Trimming can leave empty paragraph shells whose margins would still
@@ -210,7 +209,7 @@ class EpubPaginator({required final dom.DocumentFragment root}) {
   /// Resolves a break to a node in [root].
   ///
   /// [EpubBreak.blockNodeIndex] is a preorder element index (see
-  /// [EpubHtmlConstants.nodeIndexAttribute]) and [EpubBreak.childPath] addresses a
+  /// [HtmlConstants.nodeIndexAttribute]) and [EpubBreak.childPath] addresses a
   /// node below that element using `nodes` indices.
   dom.Node? _nodeAt(dom.Node root, EpubBreak position) {
     final block = _blockAt(root, position.blockNodeIndex);
@@ -227,7 +226,7 @@ class EpubPaginator({required final dom.DocumentFragment root}) {
   }
 
   dom.Element? _blockAt(dom.Node root, int nodeIndex) {
-    final attribute = EpubHtmlConstants.nodeIndexAttribute;
+    final attribute = HtmlConstants.nodeIndexAttribute;
     dom.Element? match;
 
     void visit(dom.Node node) {
