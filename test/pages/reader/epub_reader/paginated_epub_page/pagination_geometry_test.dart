@@ -181,6 +181,27 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pump(const Duration(milliseconds: 150));
   });
+
+  testWidgets(
+    'generated pages split indented paragraphs with leading anchors',
+    (
+      tester,
+    ) async {
+      const viewport = Size(180, 120);
+      final text = List.filled(60, 'indent anchor line').join(' ');
+      final root = _preprocess(
+        '<style>.pindent { margin: 0; text-indent: 1.5em; }</style>'
+        '<p class="pindent">'
+        '<a id="previous"></a><a id="morson"></a>$text'
+        '</p>',
+      );
+
+      final paginator = await _paginate(tester, root, viewport);
+
+      expect(paginator.subpageCount, greaterThan(1));
+      await _expectPagesFit(tester, paginator, viewport);
+    },
+  );
 }
 
 String _chapterHtml() {

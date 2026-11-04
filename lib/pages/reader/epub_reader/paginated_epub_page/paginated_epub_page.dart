@@ -78,57 +78,54 @@ class PaginatedEpubPage extends HookWidget {
     final root = controller.root;
     final measuring = controller.status == .measuring;
 
-    return ColoredBox(
-      color: Theme.of(context).colorScheme.surface,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Offstage(
-              child: root == null
-                  ? const SizedBox.shrink()
-                  : EpubMeasurementsCollector(
-                      html: root,
-                      settings: settings,
-                      cssEngine: controller.cssEngine,
-                      enabled: measuring,
-                      onViewportChanged: controller.viewportChanged,
-                      onMeasured: (measurements, viewport) {
-                        controller.processMeasurements(
-                          measurements,
-                          viewport: viewport,
-                        );
-                      },
-                    ),
-            ),
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Offstage(
+            child: root == null
+                ? const SizedBox.shrink()
+                : EpubMeasurementsCollector(
+                    html: root,
+                    settings: settings,
+                    cssEngine: controller.cssEngine,
+                    enabled: measuring,
+                    onViewportChanged: controller.viewportChanged,
+                    onMeasured: (measurements, viewport) {
+                      controller.processMeasurements(
+                        measurements,
+                        viewport: viewport,
+                      );
+                    },
+                  ),
           ),
-          if (root == null || measuring)
-            const Center(child: CircularProgressIndicator())
-          else if (controller.subpageCount == 0)
-            const SizedBox.shrink()
-          else
-            SelectionArea(
-              onSelectionChanged: (selection) {
-                onSelectionChanged?.call(
-                  selection != null && selection.plainText.isNotEmpty,
-                );
-              },
-              child: switch (settings.mode) {
-                .horizontal => HorizontalEpubPageView(
-                  controller: controller,
-                  settings: settings,
-                ),
-                .vertical => VerticalEpubPageView(
-                  controller: controller,
-                  settings: settings,
-                ),
-                .spreads => SpreadsEpubPageView(
-                  controller: controller,
-                  settings: settings,
-                ),
-              },
-            ),
-        ],
-      ),
+        ),
+        if (root == null || measuring)
+          const Center(child: CircularProgressIndicator())
+        else if (controller.subpageCount == 0)
+          const SizedBox.shrink()
+        else
+          SelectionArea(
+            onSelectionChanged: (selection) {
+              onSelectionChanged?.call(
+                selection != null && selection.plainText.isNotEmpty,
+              );
+            },
+            child: switch (settings.mode) {
+              .horizontal => HorizontalEpubPageView(
+                controller: controller,
+                settings: settings,
+              ),
+              .vertical => VerticalEpubPageView(
+                controller: controller,
+                settings: settings,
+              ),
+              .spreads => SpreadsEpubPageView(
+                controller: controller,
+                settings: settings,
+              ),
+            },
+          ),
+      ],
     );
   }
 }
