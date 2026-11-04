@@ -1,10 +1,9 @@
-import 'dart:developer' as developer;
-
 import 'package:html/dom.dart' as dom;
 import 'package:kover/utils/html_constants.dart';
 import 'package:kover/utils/extensions/document_fragment.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_break.dart';
 import 'package:kover/pages/reader/epub_reader/paginated_epub_page/measure/epub_break_unit.dart';
+import 'package:kover/utils/logging.dart';
 
 /// Splits an EPUB document into subpages based on the measured positions of
 /// lines and blocks.
@@ -30,10 +29,12 @@ class EpubPaginator({required final dom.DocumentFragment root}) {
     _hasMeasurement = true;
 
     if (units.isEmpty || pageHeight <= 0) {
-      developer.log(
+      log.debug(
         'Skipping pagination',
-        name: 'paginated_epub_page',
-        error: 'units: ${units.length}, pageHeight: $pageHeight',
+        attributes: {
+          'units': units.length,
+          'pageHeight': pageHeight,
+        },
       );
       return;
     }
@@ -136,20 +137,18 @@ class EpubPaginator({required final dom.DocumentFragment root}) {
     // sibling positions in the cloned tree.
     final endNode = end == null ? null : _nodeAt(subpage, end);
     if (end != null && endNode == null) {
-      developer.log(
+      log.debug(
         'End node not found for subpage',
-        name: 'paginated_epub_page',
-        error: 'start: $start, end: $end',
+        attributes: {'start': start, 'end': end},
       );
       return dom.DocumentFragment();
     }
 
     final startNode = start == null ? null : _nodeAt(subpage, start);
     if (start != null && startNode == null) {
-      developer.log(
+      log.debug(
         'Start node not found for subpage',
-        name: 'paginated_epub_page',
-        error: 'start: $start, end: $end',
+        attributes: {'start': start, 'end': end},
       );
       return dom.DocumentFragment();
     }

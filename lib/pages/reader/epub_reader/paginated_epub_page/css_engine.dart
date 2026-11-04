@@ -1,9 +1,8 @@
-import 'dart:developer' as developer;
-
 import 'package:csslib/parser.dart' as css;
 import 'package:csslib/visitor.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:kover/utils/html_constants.dart';
+import 'package:kover/utils/logging.dart';
 
 /// Resolves the document stylesheet and an optional additional stylesheet to
 /// concrete declarations per element.
@@ -86,11 +85,9 @@ class CssEngine {
           }
         }
       } catch (e) {
-        developer.log(
+        log.debug(
           'skipping invalid additional selector',
-          name: 'paginated_epub_page',
-          error: e,
-          stackTrace: StackTrace.current,
+          attributes: {'error': e},
         );
       }
     }
@@ -138,11 +135,9 @@ class CssEngine {
           map.putIfAbsent(nodeIndex, () => []).add(rule);
         }
       } catch (e) {
-        developer.log(
+        log.debug(
           'skipping invalid selector',
-          name: 'paginated_epub_page',
-          error: e,
-          stackTrace: StackTrace.current,
+          attributes: {'error': e, 'selector': rule.selector},
         );
       }
     }
